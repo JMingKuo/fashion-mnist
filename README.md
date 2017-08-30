@@ -17,12 +17,12 @@ C(3,32)-C(3,32)-P2-C(3,64)-C(3,64)-P2-FC64-FC64-S10
 
 
 ## Curves
-### MNIST (Loss)
-![image](imgs/fashion_loss.png)
-### MNIST (Accuracy)
-![image](imgs/fashion_accuracy.png)
 ### Fashion-MNIST (Loss)
-![image](imgs/mnist_loss.png)
+![image](imgs/fashion_loss.png)
 ### Fashion-MNIST (Accuracy)
+![image](imgs/fashion_accuracy.png)
+### MNIST (Loss)
+![image](imgs/mnist_loss.png)
+### MNIST (Accuracy)
 ![image](imgs/mnist_accuracy.png)
 
