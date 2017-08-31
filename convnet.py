@@ -7,34 +7,34 @@ tf.logging.set_verbosity(tf.logging.INFO)
 
 from tensorflow.examples.tutorials.mnist import input_data
 
-DATA_DIR = './data/mnist'
+DATA_DIR = './data/fashion'
 
 def cnn_model_fn(features, labels, mode):
     """Model function for CNN."""
     input_layer = tf.reshape(features["x"], [-1, 28, 28, 1])
     conv1 = tf.layers.conv2d(
-        inputs=input_layer, filters=32, kernel_size=[3, 3],
-        padding="same", activation=selu)
+        inputs=input_layer, filters=64, kernel_size=[5, 5],
+        padding="same", activation=tf.nn.relu)
     conv2 = tf.layers.conv2d(
-        inputs=conv1, filters=32, kernel_size=[3, 3],
-        padding="same", activation=selu)
+        inputs=conv1, filters=64, kernel_size=[5, 5],
+        padding="same", activation=tf.nn.relu)
     pool1 = tf.layers.max_pooling2d(
         inputs=conv2, pool_size=[2, 2], strides=2)
     conv3 = tf.layers.conv2d(
-        inputs=pool1, filters=64, kernel_size=[3, 3],
-        padding="same", activation=selu)
+        inputs=pool1, filters=64, kernel_size=[5, 5],
+        padding="same", activation=tf.nn.relu)
     conv4 = tf.layers.conv2d(
-        inputs=conv3, filters=64, kernel_size=[3, 3],
-        padding="same", activation=selu)
+        inputs=conv3, filters=64, kernel_size=[5, 5],
+        padding="same", activation=tf.nn.relu)
     pool2 = tf.layers.max_pooling2d(
         inputs=conv4, pool_size=[2, 2], strides=2)
     pool2_flat = tf.reshape(pool2, [-1, 7 * 7 * 64])
-    dense1 = tf.layers.dense(inputs=pool2_flat, units=64, activation=selu)
-    dropout1 = dropout_selu(
-        x=dense1, rate=0.4, training=mode == tf.estimator.ModeKeys.TRAIN)
-    dense2 = tf.layers.dense(inputs=dropout1, units=64, activation=selu)
-    dropout2 = dropout_selu(
-        x=dense2, rate=0.4, training=mode == tf.estimator.ModeKeys.TRAIN)
+    dense1 = tf.layers.dense(inputs=pool2_flat, units=128, activation=tf.nn.relu)
+    dropout1 = tf.layers.dropout(
+        inputs=dense1, rate=0.4, training=mode == tf.estimator.ModeKeys.TRAIN)
+    dense2 = tf.layers.dense(inputs=dropout1, units=128, activation=tf.nn.relu)
+    dropout2 = tf.layers.dropout(
+        inputs=dense2, rate=0.4, training=mode == tf.estimator.ModeKeys.TRAIN)
     logits = tf.layers.dense(inputs=dropout2, units=10)
 
     predictions = {
@@ -80,7 +80,7 @@ def main(unused_argv):
 
     # Create the Estimator
     mnist_classifier = tf.estimator.Estimator(
-        model_fn=cnn_model_fn, model_dir="model/mnist_selu_lr001")
+        model_fn=cnn_model_fn, model_dir="model/fashion_selu_large_lr001")
 
     # Train the model
     train_input_fn = tf.estimator.inputs.numpy_input_fn(
@@ -97,12 +97,21 @@ def main(unused_argv):
         num_epochs=1,
         shuffle=False)
 
+    predict_input_fn = tf.estimator.inputs.numpy_input_fn(
+        x={"x": eval_data},
+        y=eval_labels,
+        num_epochs=1,
+        shuffle=False)
+
     for j in range(100):
         mnist_classifier.train(
             input_fn=train_input_fn,
             steps=100)
         eval_results = mnist_classifier.evaluate(input_fn=eval_input_fn)
         print(eval_results)
-
+        '''
+        predictions = list(mnist_classifier.predict(input_fn=eval_input_fn))
+        print("Num of Samples :", len(predictions))
+        '''
 if __name__ == "__main__":
     tf.app.run()
